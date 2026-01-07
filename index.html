@@ -44,10 +44,9 @@
 {% if carrito %}
 <ul>
 {% for p in carrito %}
-<li>{{ p }} - $ {{ productos[p] }}</li>
+<li>{{ p }} - $ {{ productos.get(p, 0) }}</li>
 {% endfor %}
 </ul>
-<p><strong>Total: $ {{ total }}</strong></p>
 
 <form method="post">
     <input type="hidden" name="accion" value="finalizar">

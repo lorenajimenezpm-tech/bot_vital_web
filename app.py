@@ -1,19 +1,26 @@
-from flask import Flask, render_template, request, redirect, session
+import os
 import unicodedata
 import difflib
-import os
+from flask import Flask, render_template, request, session
 
-app = Flask(__name__)
+# ---------- CONFIGURACIÓN DE FLASK ----------
+# Forzar a Flask a usar la carpeta 'templates' junto al archivo
+app = Flask(
+    __name__,
+    template_folder=os.path.join(os.path.dirname(__file__), "templates")
+)
 app.secret_key = "vital_health_123"
 
 # ---------- FUNCIONES ----------
 def quitar_tildes(texto):
+    """Quita tildes y acentos de un texto."""
     return ''.join(
         c for c in unicodedata.normalize('NFD', texto)
         if unicodedata.category(c) != 'Mn'
     )
 
 def sugerir_productos(texto, productos_normalizados):
+    """Devuelve hasta 3 coincidencias aproximadas de productos."""
     return difflib.get_close_matches(
         texto,
         productos_normalizados.keys(),
@@ -49,10 +56,10 @@ productos = {
     "DAILY SACHET": 110.00
 }
 
-productos_normalizados = {
-    quitar_tildes(k): k for k in productos
-}
+# Diccionario normalizado para comparación
+productos_normalizados = {quitar_tildes(k): k for k in productos}
 
+# Palabras clave especiales
 keywords = {
     "CAFE": ["NEUROKAFE", "LOVKAFE", "LATTEKAFE", "THERMOKAFE"]
 }
@@ -60,7 +67,7 @@ keywords = {
 # ---------- RUTA PRINCIPAL ----------
 @app.route("/", methods=["GET", "POST"])
 def index():
-    # ✅ Inicializar sesión si no existe
+    # Inicializar sesión si no existe
     if "carrito" not in session:
         session["carrito"] = []
     if "nombre" not in session:
@@ -82,12 +89,20 @@ def index():
         elif accion == "consultar":
             entrada = quitar_tildes(request.form.get("producto").upper())
 
-            if "CAFE" in entrada:
-                producto_encontrado = "NEUROKAFE"
-            else:
+            # Manejar palabras clave
+            encontrado = False
+            for key, lista in keywords.items():
+                if key in entrada:
+                    producto_encontrado = lista[0]
+                    encontrado = True
+                    break
+
+            # Búsqueda normal
+            if not encontrado:
                 for p_norm, p_real in productos_normalizados.items():
                     if p_norm in entrada:
                         producto_encontrado = p_real
+                        encontrado = True
                         break
 
             if producto_encontrado:
@@ -98,16 +113,17 @@ def index():
         # AGREGAR AL CARRITO
         elif accion == "agregar":
             producto = request.form.get("producto_real")
-            session["carrito"].append(producto)
-            session.modified = True
-            mensaje = "✔️ Producto agregado al carrito."
+            if producto:  # Solo agregar si existe
+                session["carrito"].append(producto)
+                session.modified = True
+                mensaje = "✔️ Producto agregado al carrito."
 
-        # FINALIZAR
+        # FINALIZAR COMPRA
         elif accion == "finalizar":
             session.clear()
             mensaje = "✅ Compra confirmada. Un agente se comunicará contigo."
 
-    # ✅ Calcular total de forma segura
+    # Calcular total del carrito
     total = sum(productos.get(p, 0) for p in session.get("carrito", []))
 
     return render_template(
@@ -124,4 +140,4 @@ def index():
 # ---------- EJECUTAR APP ----------
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, debug=True)

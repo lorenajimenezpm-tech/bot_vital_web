@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, session
 import unicodedata
 import difflib
+import os
 
 app = Flask(__name__)
 app.secret_key = "vital_health_123"
@@ -59,8 +60,11 @@ keywords = {
 # ---------- RUTA PRINCIPAL ----------
 @app.route("/", methods=["GET", "POST"])
 def index():
+    # ✅ Inicializar sesión si no existe
     if "carrito" not in session:
         session["carrito"] = []
+    if "nombre" not in session:
+        session["nombre"] = None
 
     mensaje = ""
     producto_encontrado = None
@@ -103,7 +107,8 @@ def index():
             session.clear()
             mensaje = "✅ Compra confirmada. Un agente se comunicará contigo."
 
-    total = sum(productos[p] for p in session.get("carrito", []))
+    # ✅ Calcular total de forma segura
+    total = sum(productos.get(p, 0) for p in session.get("carrito", []))
 
     return render_template(
         "index.html",
@@ -115,8 +120,8 @@ def index():
         precio=precio,
         nombre=session.get("nombre")
     )
-import os
 
+# ---------- EJECUTAR APP ----------
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Bot Vital Health</title>
+</head>
+<body>
+
+<h1>👋 Bot Vital Health</h1>
+
+{% if not nombre %}
+<form method="post">
+    <input type="hidden" name="accion" value="datos">
+    Nombre: <input type="text" name="nombre" required><br><br>
+    Edad: <input type="number" name="edad" required><br><br>
+    <button type="submit">Entrar</button>
+</form>
+{% else %}
+
+<p>Hola, <strong>{{ nombre }}</strong> 😊</p>
+
+<hr>
+
+<h3>Consultar producto</h3>
+<form method="post">
+    <input type="hidden" name="accion" value="consultar">
+    <input type="text" name="producto" required>
+    <button type="submit">Buscar</button>
+</form>
+
+{% if producto_encontrado %}
+<p>💊 {{ producto_encontrado }}</p>
+<p>💵 $ {{ precio }}</p>
+<form method="post">
+    <input type="hidden" name="accion" value="agregar">
+    <input type="hidden" name="producto_real" value="{{ producto_encontrado }}">
+    <button type="submit">Agregar al carrito</button>
+</form>
+{% endif %}
+
+<hr>
+
+<h3>🛒 Carrito</h3>
+{% if carrito %}
+<ul>
+{% for p in carrito %}
+<li>{{ p }} - $ {{ productos.get(p, 0) }}</li>
+{% endfor %}
+</ul>
+
+<form method="post">
+    <input type="hidden" name="accion" value="finalizar">
+    <button type="submit">Finalizar compra</button>
+</form>
+{% else %}
+<p>Carrito vacío</p>
+{% endif %}
+
+{% endif %}
+
+<p>{{ mensaje }}</p>
+
+</body>
+</html>

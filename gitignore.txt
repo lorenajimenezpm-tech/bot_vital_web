@@ -1,0 +1,24 @@
+# Archivos compilados de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Entornos virtuales
+env/
+venv/
+.venv/
+
+# Archivos de configuración y secretos
+*.env
+instance/
+*.sqlite3
+
+# Archivos de sistema (Android/Pydroid)
+*.bak
+*.swp
+.DS_Store
+Thumbs.db
+
+# Carpeta de logs
+*.log

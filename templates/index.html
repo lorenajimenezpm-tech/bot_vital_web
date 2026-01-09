@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Bot Vital Health</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+        function mostrarSeccion(id) {
+            const secciones = document.querySelectorAll('.seccion');
+            secciones.forEach(sec => sec.classList.remove('activo'));
+            document.getElementById(id).classList.add('activo');
+        }
+    </script>
+</head>
+
+<body>
+<div class="contenedor">
+
+<h1>👋 Bot Vital Health</h1>
+
+{% if not nombre %}
+<form method="post">
+    <input type="hidden" name="accion" value="datos">
+    <label>Nombre:</label>
+    <input type="text" name="nombre" required><br>
+    <label>Edad:</label>
+    <input type="number" name="edad" required><br>
+    <button type="submit">Entrar</button>
+</form>
+
+{% else %}
+<p>Hola, <strong>{{ nombre }}</strong> 😊</p>
+<hr>
+
+<!-- Botones de Secciones -->
+<div>
+    <button onclick="mostrarSeccion('productos')">Productos</button>
+    <button onclick="mostrarSeccion('kits_te')">Kits de Té</button>
+    <button onclick="mostrarSeccion('kits_perdida')">Kits de Pérdida de Peso</button>
+    <button onclick="mostrarSeccion('contacto')">Hablar con Asesor</button>
+    <button onclick="mostrarSeccion('carrito')">Carrito</button>
+</div>
+
+<!-- Sección Productos -->
+<div id="productos" class="seccion activo">
+    <h2>💊 Productos Disponibles</h2>
+    
+    <!-- Buscador -->
+    <form method="post">
+        <input type="hidden" name="accion" value="consultar">
+        <input type="text" name="producto" placeholder="Escribe tu producto..." required>
+        <button>Buscar</button>
+    </form>
+    
+    {% if mensaje %}
+    <p>{{ mensaje }}</p>
+    {% endif %}
+    
+    {% if producto_encontrado %}
+    <p>Producto encontrado: {{ producto_encontrado }} – ${{ precio }}</p>
+    <form method="post">
+        <input type="hidden" name="accion" value="agregar">
+        <input type="hidden" name="producto_real" value="{{ producto_encontrado }}">
+        <button>Agregar al carrito</button>
+    </form>
+    {% endif %}
+    
+    {% if sugerencias %}
+    <div class="sugerencias">
+        <p>¿Quisiste decir?</p>
+        {% for s in sugerencias %}
+        <form method="post" style="display:inline-block">
+            <input type="hidden" name="accion" value="agregar">
+            <input type="hidden" name="producto_real" value="{{ s }}">
+            <button>{{ s }}</button>
+        </form>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <hr>
+    <h3>Todos los productos</h3>
+    {% for p, precio in productos.items() %}
+    <form method="post" class="producto-form">
+        <input type="hidden" name="accion" value="agregar">
+        <input type="hidden" name="producto_real" value="{{ p }}">
+        {{ p }} – ${{ precio }}
+        <button>Agregar al carrito</button>
+    </form>
+    {% endfor %}
+</div>
+
+<!-- Sección Kits de Té -->
+<div id="kits_te" class="seccion">
+    <h2>🍵 Kits de Té</h2>
+    {% for k, precio in kits_te.items() %}
+    <form method="post" class="producto-form">
+        <input type="hidden" name="accion" value="agregar">
+        <input type="hidden" name="producto_real" value="{{ k }}">
+        {{ k }} – ${{ precio }}
+        <button>Agregar al carrito</button>
+    </form>
+    {% endfor %}
+</div>
+
+<!-- Sección Kits de Pérdida de Peso -->
+<div id="kits_perdida" class="seccion">
+    <h2>🏋️ Kits de Pérdida de Peso</h2>
+    {% for k, precio in kits_perdida.items() %}
+    <form method="post" class="producto-form">
+        <input type="hidden" name="accion" value="agregar">
+        <input type="hidden" name="producto_real" value="{{ k }}">
+        {{ k }} – ${{ precio }}
+        <button>Agregar al carrito</button>
+    </form>
+    {% endfor %}
+</div>
+
+<!-- Sección Contacto -->
+<div id="contacto" class="seccion">
+    <h2>💬 Hablar con un Asesor</h2>
+    <a href="https://wa.me/50767930582?text=Hola%20😊,%20soy%20{{ nombre }}%20y%20tengo%20{{ edad }}%20años.%20Deseo%20hablar%20con%20un%20Asesor%20de%20Bienestar" target="_blank">
+        Iniciar chat por WhatsApp
+    </a>
+</div>
+
+<!-- Sección Carrito -->
+<div id="carrito" class="seccion">
+    <h2>🛒 Carrito</h2>
+    {% if carrito %}
+    <ul>
+        {% for p in carrito %}
+        <li>
+            {{ p }} - ${{ productos.get(p, kits_te.get(p, kits_perdida.get(p, 0))) }}
+            <!-- Botón para quitar -->
+            <form method="post" style="display:inline-block">
+                <input type="hidden" name="accion" value="quitar">
+                <input type="hidden" name="producto_real" value="{{ p }}">
+                <button>❌ Quitar</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+    <p><strong>Total:</strong> ${{ total }}</p>
+
+    <a href="https://wa.me/50767930582?text=Hola%20😊,%20soy%20{{ nombre }}%20y%20tengo%20{{ edad }}%20años.%0AMi%20pedido%20es:%0A{% for p in carrito %}- {{ p }}%0A{% endfor %}%0ATotal:%20${{ total }}" target="_blank">
+        📲 Finalizar compra por WhatsApp
+    </a>
+    {% else %}
+    <p>Carrito vacío</p>
+    {% endif %}
+</div>
+
+{% endif %}
+</div>
+</body>
+</html>

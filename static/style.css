@@ -1,0 +1,195 @@
+/* ---------- Estilos Generales ---------- */
+body {
+    font-family: Arial, sans-serif;
+    background: #e6f4f1;
+    margin: 0;
+    padding: 20px 0;
+    display: flex;
+    justify-content: center;
+}
+
+.contenedor {
+    width: 100%;
+    max-width: 750px;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    font-size: 16px;
+}
+
+/* ---------- Encabezados ---------- */
+h1 {
+    color: #2fa4a9;
+    text-align: center;
+    font-size: 28px;
+}
+
+h2, h3 {
+    color: #2fa4a9;
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+/* ---------- Botones ---------- */
+button {
+    background: #2fa4a9;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 5px 5px 10px 0;
+    font-size: 16px;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background: #238386;
+}
+
+/* ---------- Secciones ---------- */
+.seccion {
+    display: none;
+    margin-top: 15px;
+}
+
+.activo {
+    display: block;
+}
+
+/* ---------- Listas ---------- */
+ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+li {
+    background: #f9f9f9;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* ---------- Inputs ---------- */
+input[type="text"], input[type="number"] {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0 10px 0;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+
+/* ---------- Buscador y sugerencias ---------- */
+.sugerencias {
+    background: #f0f8ff;
+    padding: 10px;
+    border-radius: 6px;
+    margin-top: 5px;
+}
+
+.sugerencias button {
+    background: #238386;
+    margin: 3px 5px 3px 0;
+    font-size: 14px;
+}
+
+/* ---------- Links ---------- */
+a {
+    color: #2fa4a9;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+/* ---------- Separadores ---------- */
+hr {
+    margin: 25px 0;
+}
+
+/* ---------- Carrito ---------- */
+.carrito-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.carrito-item button {
+    background: #ff4d4d;
+    margin-left: 10px;
+    padding: 5px 10px;
+}
+
+.carrito-item button:hover {
+    background: #e60000;
+}
+
+/* ---------- Menu de secciones ---------- */
+.menu-secciones {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.menu-secciones button {
+    flex: 1 1 45%;
+    margin: 5px;
+}
+
+/* ---------- Mensajes ---------- */
+.mensaje {
+    margin: 10px 0;
+    padding: 10px;
+    background: #f0f8ff;
+    border-radius: 6px;
+}
+
+/* ---------- RESPONSIVE / MÓVILES ---------- */
+@media (max-width: 500px) {
+    .menu-secciones {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .menu-secciones button {
+        flex: 1 1 100%;
+        margin: 5px 0;
+    }
+
+    li {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    li button {
+        margin-top: 5px;
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .carrito-item button {
+        width: 100%;
+        margin: 5px 0 0 0;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    h2, h3 {
+        font-size: 18px;
+    }
+
+    button {
+        font-size: 16px;
+        padding: 10px;
+    }
+}

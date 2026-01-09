@@ -1,6 +1,8 @@
+
 from flask import Flask, render_template, request, session
 import unicodedata
 import difflib
+import urllib.parse
 
 app = Flask(__name__)
 app.secret_key = "vital_health_123"
@@ -19,6 +21,30 @@ def sugerir_productos(texto, productos_normalizados):
         n=3,
         cutoff=0.6
     )
+
+def generar_total(carrito):
+    total = 0
+    for p in carrito:
+        if p in productos:
+            total += productos[p]
+        elif p in kits_te:
+            total += kits_te[p]
+        elif p in kits_perdida:
+            total += kits_perdida[p]
+    return total
+
+def generar_whatsapp_link(nombre, edad, carrito, total):
+    texto = f"Hola 😊, soy {nombre} y tengo {edad} años.\nMi pedido es:\n"
+    for p in carrito:
+        if p in productos:
+            precio = productos[p]
+        elif p in kits_te:
+            precio = kits_te[p]
+        elif p in kits_perdida:
+            precio = kits_perdida[p]
+        texto += f"- {p} - ${precio}\n"
+    texto += f"Total: ${total}"
+    return "https://wa.me/50767930582?text=" + urllib.parse.quote(texto)
 
 # ---------- DATOS ----------
 productos = {
@@ -50,7 +76,6 @@ productos = {
 
 productos_normalizados = {quitar_tildes(k): k for k in productos}
 
-# Secciones de Kits (para desplegar con botones)
 kits_te = {
     "TÉ DETOX 1 SEMANA": 25.00,
     "TÉ DETOX 2 SEMANAS": 42.00,
@@ -62,11 +87,6 @@ kits_te = {
 kits_perdida = {
     "KIT PÉRDIDA DE PESO 4 SEMANAS": 162.49,
     "KIT PÉRDIDA DE PESO 5 SEMANAS": 175.49
-}
-
-# Keywords especiales (opcional)
-keywords = {
-    "CAFE": ["NEUROKAFE", "LOVKAFE", "LATTEKAFE", "THERMOKAFE"]
 }
 
 # ---------- RUTA PRINCIPAL ----------
@@ -101,7 +121,7 @@ def index():
                         break
 
             if producto_encontrado:
-                precio = productos[producto_encontrado]
+                precio = productos.get(producto_encontrado, 0)
             else:
                 mensaje = "❌ Producto no encontrado."
                 sugerencias = sugerir_productos(entrada, productos_normalizados)
@@ -109,16 +129,29 @@ def index():
         # AGREGAR AL CARRITO
         elif accion == "agregar":
             producto = request.form.get("producto_real")
-            session["carrito"].append(producto)
-            session.modified = True
-            mensaje = f"✔️ {producto} agregado al carrito."
+            if producto:
+                session["carrito"].append(producto)
+                session.modified = True
+                mensaje = f"✔️ {producto} agregado al carrito."
+
+        # QUITAR DEL CARRITO
+        elif accion == "quitar":
+            producto = request.form.get("producto_real")
+            if producto in session["carrito"]:
+                session["carrito"].remove(producto)
+                session.modified = True
+                mensaje = f"🗑️ {producto} eliminado del carrito."
+            else:
+                mensaje = "❌ Producto no encontrado en carrito."
 
         # FINALIZAR COMPRA
         elif accion == "finalizar":
+            total = generar_total(session["carrito"])
+            link_whatsapp = generar_whatsapp_link(session.get("nombre"), session.get("edad"), session["carrito"], total)
             session.clear()
-            mensaje = "✅ Compra confirmada. Un agente se comunicará contigo."
+            return f'<script>window.location="{link_whatsapp}"</script>'
 
-    total = sum(productos.get(p, 0) for p in session.get("carrito", []))
+    total = generar_total(session.get("carrito", []))
 
     return render_template(
         "index.html",
@@ -136,4 +169,4 @@ def index():
     )
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0")
+    app.run(debug=True, host="0.0.0.0", port=5001)
